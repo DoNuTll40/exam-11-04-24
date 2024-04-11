@@ -1,0 +1,46 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model users {
+  user_id       Int             @id @default(autoincrement())
+  user_username String
+  user_password String
+  user_card     String
+  discountClaim discountClaim[]
+}
+
+model promocode {
+  promo_id      Int             @id
+  promo_title   String
+  promo_image   String
+  shop          shop[]
+  discountClaim discountClaim[]
+}
+
+model shop {
+  shop_id   Int       @id @default(autoincrement())
+  shop_name String
+  promocode promocode @relation(fields: [promo_id], references: [promo_id], onDelete: Cascade, onUpdate: Cascade)
+  promo_id  Int
+}
+
+model discountClaim {
+  dis_id    Int       @id @default(autoincrement())
+  user      users     @relation(fields: [user_id], references: [user_id])
+  user_id   Int
+  promocode promocode @relation(fields: [promo_id], references: [promo_id])
+  promo_id  Int
+  dis_at    DateTime  @default(now())
+}
